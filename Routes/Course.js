@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const mongoose = require("mongoose");
 
 const authmiddleware = require("../Middlewares/authmiddleware");
 const enrollmiddleware = require("../Middlewares/checkenrollmiddleware");
@@ -149,6 +150,10 @@ router.post(
       if (error) {
         return res.status(400).send(error.message);
       }
+      const validate = await mongoose.isValidObjectId(req.params.id);
+      if (!validate) {
+        return res.status(400).send("Invalid course id");
+      }
 
       const course = await Course.findById(req.params.id);
       if (!course) {
@@ -159,7 +164,9 @@ router.post(
         {},
         { sort: { order: -1 } }
       );
+      console.log(maxOrderLesson);
       const defaultOrder = maxOrderLesson ? maxOrderLesson.order + 1 : 1;
+      console.log(defaultOrder);
       const upload = await cloudinary.uploader.upload(req.file.path);
       const lesson = new Lessons({
         CourseId: course._id,
