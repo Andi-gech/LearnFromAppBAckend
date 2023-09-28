@@ -181,7 +181,7 @@ router.post(
 router.post(
   "",
   authmiddleware,
-  upload.single("coursepic"),
+
   async (req, res) => {
     try {
       const { error } = ValidateCourse(req.body);
