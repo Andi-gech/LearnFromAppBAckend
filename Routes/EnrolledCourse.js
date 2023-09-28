@@ -53,7 +53,7 @@ Router.post("/:id", Authmiddleware, async (req, res) => {
       currency: "ETB",
       amount: course.Price ? course.Price : 2,
       tx_ref: tx_ref,
-      callback_url: `https://2dee-196-189-191-65.ngrok.io/api/enroll/verify/${course._id}`,
+      callback_url: `https://long-gold-lion-cuff.cyclic.cloud/enroll/verify/${course._id}`,
       return_url: "https://example.com/",
       customization: {
         title: "Test Title",
