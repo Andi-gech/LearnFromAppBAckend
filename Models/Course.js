@@ -4,7 +4,10 @@ Joi.objectId = require("joi-objectid")(Joi);
 const CourseSchema = new mongoose.Schema({
   name: String,
   created_at: { type: Date, default: Date.now },
-  coursepic: Buffer,
+  coursepic: {
+    data: Buffer,
+    contentType: String,
+  },
   description: String,
   Rating: { type: Number, default: 1 },
   Author: {

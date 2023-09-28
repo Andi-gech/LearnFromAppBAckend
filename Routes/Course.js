@@ -11,7 +11,8 @@ const {
 } = require("../Models/EnrolledCourse");
 const { Lessons, checklessonvalidation } = require("../Models/Lessons");
 
-const upload = multer();
+const storage = multer.memoryStorage();
+const upload = multer({ Storage: storage });
 
 // Get all courses with author's first name
 router.get("", authmiddleware, async (req, res) => {
@@ -181,7 +182,7 @@ router.post(
 router.post(
   "",
   authmiddleware,
-
+  upload.single("coursepic"),
   async (req, res) => {
     try {
       const { error } = ValidateCourse(req.body);
@@ -192,7 +193,10 @@ router.post(
 
       const course = new Course({
         name: req.body.name,
-        coursepic: req.file.buffer,
+        coursepic: {
+          data: req.file.buffer,
+          contentType: req.file.mimetype,
+        },
         description: req.body.description,
         Author: req.user._id,
         Price: req.body.Price,
