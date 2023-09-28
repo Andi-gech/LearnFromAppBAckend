@@ -38,40 +38,39 @@ router.get("/:id", [authmiddleware], async (req, res) => {
 });
 
 // Get lessons for a specific course
-router.get(
-  "/:id/lessons",
-  [authmiddleware, enrollmiddleware],
-  async (req, res) => {
-    try {
-      const lessons = await Lessons.find({ CourseId: req.params.id });
-      const enrollment = await EnrolledCourse.findOne({
-        CourseId: req.params.id,
-        UserId: req.user._id,
-      });
+router.get("/:id/lessons", [authmiddleware], async (req, res) => {
+  try {
+    const lessonNames = await Lessons.find({ CourseId: req.params.id })
+      .select("title order")
+      .sort("order");
 
-      if (!enrollment) {
-        return res.status(404).json({ message: "Enrollment not found" });
-      }
+    // const enrollment = await EnrolledCourse.findOne({
+    //   CourseId: req.params.id,
+    //   UserId: req.user._id,
+    // });
 
-      // Get the lesson IDs that the user has completed
-      const completedLessonIds = enrollment.completedlessons.map(
-        (completedLesson) => completedLesson._id.toString()
-      );
+    // if (!enrollment) {
+    //   return res.status(404).json({ message: "Enrollment not found" });
+    // }
 
-      // Add a completionStatus property to each lesson
-      const lessonsWithCompletionStatus = lessons.map((lesson) => ({
-        ...lesson.toObject(),
-        completionStatus: completedLessonIds.includes(lesson._id.toString()),
-      }));
-      lessonsWithCompletionStatus.sort((a, b) => a.order - b.order);
+    // // Get the lesson IDs that the user has completed
+    // const completedLessonIds = enrollment.completedlessons.map(
+    //   (completedLesson) => completedLesson._id.toString()
+    // );
 
-      res.json(lessonsWithCompletionStatus);
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({ message: "Internal server error" });
-    }
+    // // Add a completionStatus property to each lesson
+    // const lessonsWithCompletionStatus = lessons.map((lesson) => ({
+    //   ...lesson.toObject(),
+    //   completionStatus: completedLessonIds.includes(lesson._id.toString()),
+    // }));
+    // lessons.sort((a, b) => a.order - b.order);
+
+    res.json(lessonNames);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
   }
-);
+});
 // Get a specific lesson by ID for a specific course
 router.get(
   "/:id/lessons/:lessonid",
