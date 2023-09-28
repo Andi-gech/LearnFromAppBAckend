@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
+
 const authmiddleware = require("../Middlewares/authmiddleware");
 const enrollmiddleware = require("../Middlewares/checkenrollmiddleware");
 const { Course, ValidateCourse } = require("../Models/Course");
@@ -11,8 +11,8 @@ const {
 } = require("../Models/EnrolledCourse");
 const { Lessons, checklessonvalidation } = require("../Models/Lessons");
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = require("./multer");
+const cloudinary = require("./cloudinary");
 
 // Get all courses with author's first name
 router.get("", authmiddleware, async (req, res) => {
@@ -141,8 +141,9 @@ router.put(
 // Create a new lesson for a specific course
 router.post(
   "/:id/lessons",
-  [authmiddleware],
   upload.single("lessonpic"),
+  [authmiddleware],
+
   async (req, res) => {
     try {
       const { error } = checklessonvalidation(req.body);
@@ -160,12 +161,12 @@ router.post(
         { sort: { order: -1 } }
       );
       const defaultOrder = maxOrderLesson ? maxOrderLesson.order + 1 : 1;
-      const lessonpic = req.file ? req.file.filename : null;
+      const upload = await cloudinary.uploader.upload(req.file.path);
       const lesson = new Lessons({
         CourseId: course._id,
         title: req.body.title,
         content: req.body.content,
-        image: lessonpic,
+        image: upload.secure_url,
         Video_url: req.Video_url,
         order: defaultOrder,
       });
@@ -181,22 +182,21 @@ router.post(
 // Create a new course
 router.post(
   "",
-  authmiddleware,
   upload.single("coursepic"),
+  authmiddleware,
+
   async (req, res) => {
     try {
       const { error } = ValidateCourse(req.body);
-      const coursepic = req.file ? req.file.filename : null;
+
       if (error) {
         return res.status(400).send(error.message);
       }
 
+      const upload = await cloudinary.uploader.upload(req.file.path);
       const course = new Course({
         name: req.body.name,
-        coursepic: {
-          data: req.file.buffer,
-          contentType: req.file.mimetype,
-        },
+        coursepic: upload.secure_url,
         description: req.body.description,
         Author: req.user._id,
         Price: req.body.Price,
@@ -206,6 +206,7 @@ router.post(
       res.send(response);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
+      console.log(error);
     }
   }
 );
