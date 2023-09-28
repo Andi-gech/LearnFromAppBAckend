@@ -25,7 +25,7 @@ router.get("", authmiddleware, async (req, res) => {
 });
 
 // Get a specific course by ID
-router.get("/:id", [authmiddleware, enrollmiddleware], async (req, res) => {
+router.get("/:id", [authmiddleware], async (req, res) => {
   try {
     const course = await Course.findById(req.params.id);
     if (!course) {
