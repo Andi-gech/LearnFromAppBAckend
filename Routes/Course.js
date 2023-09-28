@@ -12,7 +12,7 @@ const {
 const { Lessons, checklessonvalidation } = require("../Models/Lessons");
 
 const storage = multer.memoryStorage();
-const upload = multer({ Storage: storage });
+const upload = multer({ storage: storage });
 
 // Get all courses with author's first name
 router.get("", authmiddleware, async (req, res) => {
