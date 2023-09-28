@@ -167,12 +167,14 @@ router.post(
       console.log(maxOrderLesson);
       const defaultOrder = maxOrderLesson ? maxOrderLesson.order + 1 : 1;
       console.log(defaultOrder);
-      const upload = await cloudinary.uploader.upload(req.file.path);
+      const upload = req.file
+        ? await cloudinary.uploader.upload(req.file.path)
+        : null;
       const lesson = new Lessons({
         CourseId: course._id,
         title: req.body.title,
         content: req.body.content,
-        image: upload.secure_url,
+        image: upload?.secure_url,
         Video_url: req.Video_url,
         order: defaultOrder,
       });
