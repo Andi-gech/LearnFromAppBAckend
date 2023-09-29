@@ -45,27 +45,6 @@ router.get("/:id/lessons", [authmiddleware], async (req, res) => {
       .select("title order")
       .sort("order");
 
-    // const enrollment = await EnrolledCourse.findOne({
-    //   CourseId: req.params.id,
-    //   UserId: req.user._id,
-    // });
-
-    // if (!enrollment) {
-    //   return res.status(404).json({ message: "Enrollment not found" });
-    // }
-
-    // // Get the lesson IDs that the user has completed
-    // const completedLessonIds = enrollment.completedlessons.map(
-    //   (completedLesson) => completedLesson._id.toString()
-    // );
-
-    // // Add a completionStatus property to each lesson
-    // const lessonsWithCompletionStatus = lessons.map((lesson) => ({
-    //   ...lesson.toObject(),
-    //   completionStatus: completedLessonIds.includes(lesson._id.toString()),
-    // }));
-    // lessons.sort((a, b) => a.order - b.order);
-
     res.json(lessonNames);
   } catch (error) {
     console.log(error);
@@ -82,6 +61,15 @@ router.get(
       if (!lesson) {
         return res.status(404).json({ message: "Lesson not found" });
       }
+      const enrollment = await EnrolledCourse.findOne({
+        CourseId: req.params.id,
+        UserId: req.user._id,
+      });
+      enrollment.completedlessons.forEach((element) => {
+        if (element._id.toString() === req.params.lessonid) {
+          lesson.isCompleted = true;
+        }
+      });
 
       // Check if the lesson belongs to the specified course
       if (lesson.CourseId.toString() !== req.params.id) {
