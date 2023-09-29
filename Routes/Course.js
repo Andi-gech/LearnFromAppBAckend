@@ -32,7 +32,7 @@ router.get("", authmiddleware, async (req, res) => {
     if (search) {
       // Case-insensitive search by the course name
       coursesQuery = coursesQuery.find({
-        CourseName: { $regex: new RegExp(search, "i") },
+        name: { $regex: new RegExp(search, "i") },
       });
     }
 
