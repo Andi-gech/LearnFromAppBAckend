@@ -18,12 +18,25 @@ const cloudinary = require("./cloudinary");
 // Get all courses with author's first name
 router.get("", authmiddleware, async (req, res) => {
   try {
+    const { search } = req.query; // Get the search query parameter from the request
+
     const enrolledCourses = await EnrolledCourse.find({
       UserId: req.user._id,
     }).distinct("CourseId");
-    const courses = await Course.find({
+
+    let coursesQuery = Course.find({
       _id: { $nin: enrolledCourses },
     }).populate("Author", "Firstname");
+
+    // If a search term is provided, filter the courses by the search term
+    if (search) {
+      // Case-insensitive search by the course name
+      coursesQuery = coursesQuery.find({
+        CourseName: { $regex: new RegExp(search, "i") },
+      });
+    }
+
+    const courses = await coursesQuery.exec();
 
     res.send(courses);
   } catch (error) {
