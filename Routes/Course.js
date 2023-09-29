@@ -18,7 +18,13 @@ const cloudinary = require("./cloudinary");
 // Get all courses with author's first name
 router.get("", authmiddleware, async (req, res) => {
   try {
-    const courses = await Course.find().populate("Author", "Firstname");
+    const enrolledCourses = await EnrolledCourse.find({
+      UserId: req.user._id,
+    }).distinct("CourseId");
+    const courses = await Course.find({
+      _id: { $nin: enrolledCourses },
+    }).populate("Author", "Firstname");
+
     res.send(courses);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
