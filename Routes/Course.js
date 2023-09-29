@@ -51,7 +51,7 @@ router.get("/:id/lessons", [authmiddleware], async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
-// Get a specific lesson by ID for a specific course
+
 router.get(
   "/:id/lessons/:lessonid",
   [authmiddleware, enrollmiddleware, checkCompletionMiddleware],
@@ -65,20 +65,22 @@ router.get(
         CourseId: req.params.id,
         UserId: req.user._id,
       });
-      enrollment.completedlessons.forEach((element) => {
-        if (element._id.toString() === req.params.lessonid) {
-          lesson.isCompleted = true;
-        }
-      });
+      const isLessonCompleted = enrollment.completedlessons.some(
+        (completedLesson) =>
+          completedLesson._id.toString() === req.params.lessonid
+      );
+      const response = {
+        lesson,
+        iscompleted: isLessonCompleted,
+      };
 
-      // Check if the lesson belongs to the specified course
       if (lesson.CourseId.toString() !== req.params.id) {
         return res
           .status(404)
           .json({ message: "Lesson not found for the specified course" });
       }
 
-      res.json(lesson);
+      res.json(response);
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Internal server error" });
