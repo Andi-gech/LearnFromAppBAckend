@@ -18,6 +18,10 @@ const UserSchema = mongoose.Schema({
     min: 3,
     unique: true,
   },
+  ProfilePic: {
+    type: String,
+    min: 3,
+  },
   Password: {
     type: String,
     required: true,

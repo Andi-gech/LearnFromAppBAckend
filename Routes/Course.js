@@ -15,10 +15,9 @@ const { Lessons, checklessonvalidation } = require("../Models/Lessons");
 const upload = require("./multer");
 const cloudinary = require("./cloudinary");
 
-// Get all courses with author's first name
 router.get("", authmiddleware, async (req, res) => {
   try {
-    const { search } = req.query; // Get the search query parameter from the request
+    const { search } = req.query;
 
     const enrolledCourses = await EnrolledCourse.find({
       UserId: req.user._id,
@@ -28,9 +27,7 @@ router.get("", authmiddleware, async (req, res) => {
       _id: { $nin: enrolledCourses },
     }).populate("Author", "Firstname");
 
-    // If a search term is provided, filter the courses by the search term
     if (search) {
-      // Case-insensitive search by the course name
       coursesQuery = coursesQuery.find({
         name: { $regex: new RegExp(search, "i") },
       });
@@ -44,7 +41,6 @@ router.get("", authmiddleware, async (req, res) => {
   }
 });
 
-// Get a specific course by ID
 router.get("/:id", [authmiddleware], async (req, res) => {
   try {
     const course = await Course.findById(req.params.id);
@@ -57,7 +53,6 @@ router.get("/:id", [authmiddleware], async (req, res) => {
   }
 });
 
-// Get lessons for a specific course
 router.get("/:id/lessons", [authmiddleware], async (req, res) => {
   try {
     const lessonNames = await Lessons.find({ CourseId: req.params.id })
@@ -107,7 +102,6 @@ router.get(
   }
 );
 
-// Mark a lesson as completed for a specific course
 router.put(
   "/:id/lessons/:lessonid/complete",
   [authmiddleware, enrollmiddleware],
@@ -147,7 +141,6 @@ router.put(
   }
 );
 
-// Create a new lesson for a specific course
 router.post(
   "/:id/lessons",
   upload.single("lessonpic"),
