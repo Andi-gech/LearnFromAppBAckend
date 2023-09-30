@@ -2,9 +2,9 @@ const express = require("express");
 const router = express.Router();
 const { User, Validateuser } = require("../Models/Users");
 const bcrypt = require("bcrypt");
-const upload = require("multer");
-const cloudinary = require("../Routes/cloudinary");
-router.post("", upload.single("ProfilePic"), async (req, res) => {
+const upload = require("./multer");
+const cloudinary = require("./cloudinary");
+router.post("", upload.single("profilepic"), async (req, res) => {
   try {
     const { error } = Validateuser(req.body);
     if (error) {
